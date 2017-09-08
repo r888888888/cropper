@@ -29,7 +29,7 @@ def build_hmac(x):
 def build_thumbor_url(url, width, height):
   url = re.sub(r"^https?://", "", url)
   filters = "filters:format(jpeg)"
-  path = "{}x{}/{}/smart/{}".format(width, height, filters, url)
+  path = "{}x{}/smart/{}/{}".format(width, height, filters, url)
   hmac = build_hmac(path)
   return "http://127.0.0.1:8888/{}/{}".format(hmac, path)
 
