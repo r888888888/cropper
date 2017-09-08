@@ -19,6 +19,10 @@ sqs = boto3.client("sqs")
 loop = True
 thumbor_key = open("/etc/thumbor.key", "r").read().encode()
 
+def update_danbooru(post_id):
+  params = {"login": os.environ.get("DANBOORU_BOT_LOGIN"), "api_key": os.environ.get("DANBOORU_BOT_API_KEY")}
+  requests.post("https://danbooru.donmai.us/posts/{}".format(post_id), data=params)
+
 def build_hmac(x):
   return base64.urlsafe_b64encode(hmac.new(thumbor_key, x.encode(), digestmod=hashlib.sha1).digest()).decode("utf-8")
 
@@ -61,6 +65,7 @@ while loop:
         small_file.close()
         large_file.close()
         sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
+        update_danbooru(post_id)
   except:
     print("Error")
     time.sleep(30)
