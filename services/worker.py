@@ -21,7 +21,7 @@ thumbor_key = open("/etc/thumbor.key", "r").read().encode()
 
 def update_danbooru(post_id):
   params = {"login": os.environ.get("DANBOORU_BOT_LOGIN"), "api_key": os.environ.get("DANBOORU_BOT_API_KEY"), "post[has_cropped]": "true"}
-  requests.post("https://danbooru.donmai.us/posts/{}".format(post_id), data=params)
+  requests.put("https://danbooru.donmai.us/posts/{}.json".format(post_id), data=params)
 
 def build_hmac(x):
   return base64.urlsafe_b64encode(hmac.new(thumbor_key, x.encode(), digestmod=hashlib.sha1).digest()).decode("utf-8")
