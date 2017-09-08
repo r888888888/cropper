@@ -26,7 +26,7 @@ def build_thumbor_url(url, width, height):
   url = re.sub(r"^https?://", "", url)
   path = "{}x{}/smart/{}".format(width, height, url)
   hmac = build_hmac(path)
-  return "http://127.0.0.1:8888/{}/{}".format(hmac, dim, path)
+  return "http://127.0.0.1:8888/{}/{}".format(hmac, path)
 
 def upload_to_s3(file, key):
   s3 = boto3.client("s3")
@@ -35,10 +35,8 @@ def upload_to_s3(file, key):
 
 def download_and_process(url):
   ext = os.path.splitext(url)[1].lower()
-  small_url = build_thumbor_url(url, 200, 200)
+  small_url = build_thumbor_url(url, 150, 150)
   large_url = build_thumbor_url(url, 640, 320)
-  print("small", small_url)
-  print("large", large_url)
   small_file = tempfile.NamedTemporaryFile("w+b", suffix="jpg")
   large_file = tempfile.NamedTemporaryFile("w+b", suffix="jpg")
   for (url, file) in [(small_url, small_file), (large_url, large_file)]:
@@ -60,6 +58,8 @@ while loop:
         small_file, large_file = download_and_process(url)
         upload_to_s3(small_file, "cropped/small/{}".format(filename))
         upload_to_s3(large_file, "cropped/large/{}".format(filename))
+        small_file.close()
+        large_file.close()
         sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
   except:
     print("Error")
