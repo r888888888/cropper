@@ -20,7 +20,7 @@ loop = True
 thumbor_key = open("/etc/thumbor.key", "r").read().encode()
 
 def update_danbooru(post_id):
-  params = {"login": os.environ.get("DANBOORU_BOT_LOGIN"), "api_key": os.environ.get("DANBOORU_BOT_API_KEY")}
+  params = {"login": os.environ.get("DANBOORU_BOT_LOGIN"), "api_key": os.environ.get("DANBOORU_BOT_API_KEY"), "post[has_cropped]": "true"}
   requests.post("https://danbooru.donmai.us/posts/{}".format(post_id), data=params)
 
 def build_hmac(x):
