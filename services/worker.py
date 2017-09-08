@@ -28,7 +28,8 @@ def build_hmac(x):
 
 def build_thumbor_url(url, width, height):
   url = re.sub(r"^https?://", "", url)
-  path = "{}x{}/smart/{}".format(width, height, url)
+  filters = "filters:format(jpeg)"
+  path = "{}x{}/{}/smart/{}".format(width, height, filters, url)
   hmac = build_hmac(path)
   return "http://127.0.0.1:8888/{}/{}".format(hmac, path)
 
@@ -57,7 +58,7 @@ while loop:
       for message in response["Messages"]:
         receipt_handle = message["ReceiptHandle"]
         post_id, url = message["Body"].split(",")
-        filename = os.path.basename(urllib.parse.urlparse(url).path)
+        filename = re.sub(r".(jpeg|gif|png)", ".jpg", os.path.basename(urllib.parse.urlparse(url).path))
         print("processing", post_id)
         small_file, large_file = download_and_process(url)
         upload_to_s3(small_file, "cropped/small/{}".format(filename))
