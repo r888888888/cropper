@@ -63,10 +63,16 @@ while loop:
         small_file, large_file = download_and_process(url)
         upload_to_s3(small_file, "cropped/small/{}".format(filename))
         upload_to_s3(large_file, "cropped/large/{}".format(filename))
+        if os.stat(small_file.name).st_size > 0:
+          update_danbooru(post_id)
+        else:
+          print("  empty file")
         small_file.close()
         large_file.close()
         sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
-        update_danbooru(post_id)
+  except KeyboardInterrupt:
+    print("quitting")
+    loop = False
   except:
     print("Error")
     time.sleep(30)
