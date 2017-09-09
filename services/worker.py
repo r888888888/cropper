@@ -28,7 +28,10 @@ def build_hmac(x):
 
 def build_thumbor_url(url, width, height):
   url = re.sub(r"^https?://", "", url)
+  path = "{}x{}".format(width, height)
   filters = "filters:format(jpeg)"
+  if re.search(r"\.gif", url):
+    filters = filters + ":extract_cover()"
   path = "{}x{}/smart/{}/{}".format(width, height, filters, url)
   hmac = build_hmac(path)
   return "http://127.0.0.1:8888/{}/{}".format(hmac, path)
@@ -42,8 +45,8 @@ def download_and_process(url):
   ext = os.path.splitext(url)[1].lower()
   small_url = build_thumbor_url(url, 150, 150)
   large_url = build_thumbor_url(url, 640, 320)
-  small_file = tempfile.NamedTemporaryFile("w+b", suffix="jpg")
-  large_file = tempfile.NamedTemporaryFile("w+b", suffix="jpg")
+  small_file = tempfile.NamedTemporaryFile("w+b", suffix=".jpg")
+  large_file = tempfile.NamedTemporaryFile("w+b", suffix=".jpg")
   for (url, file) in [(small_url, small_file), (large_url, large_file)]:
     with closing(requests.get(url, stream=True)) as resp:
       for chunk in resp.iter_content(chunk_size=None):
@@ -73,6 +76,4 @@ while loop:
   except KeyboardInterrupt:
     print("quitting")
     loop = False
-  except:
-    print("Error")
-    time.sleep(30)
+
